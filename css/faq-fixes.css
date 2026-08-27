@@ -1,7 +1,10 @@
 .quick-settings-grid select {
   color-scheme: dark;
-  background-color: #17243a;
+  /* background-color: #17243a; */
   color: #f8fafc;
+}
+.quick-settings-grid select:focus{
+  outline: none;
 }
 
 .quick-settings-grid select option {
