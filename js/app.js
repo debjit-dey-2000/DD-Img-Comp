@@ -83,7 +83,6 @@ async function waitWhilePaused() {
 }
 
 async function recordCompressionAnalytics(processedItems) {
-  if (localStorage.getItem('dd-analytics-consent') !== 'accepted') return;
   const completedItems = processedItems.filter(item => item.status === 'completed' && item.compressedBlob);
   if (!completedItems.length) return;
   const payload = completedItems.reduce((totals, item) => ({

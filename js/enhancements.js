@@ -3,8 +3,7 @@ const enhancementElements = Object.fromEntries([
   'compatibilityButton', 'compatibilityDialog', 'compatibilityClose', 'compatibilityAcknowledge', 'compatibilityResults',
   'toolHelpButton', 'helpDialog', 'helpDialogClose', 'helpAcknowledge',
   'bulkRenameButton', 'bulkRenameDialog', 'bulkRenameClose', 'bulkRenamePrefix', 'bulkRenameApply',
-  'retryFailedButton', 'errorReportButton', 'undoBar', 'undoMessage', 'undoDeleteButton',
-  'analyticsConsent', 'acceptAnalytics', 'declineAnalytics'
+  'retryFailedButton', 'errorReportButton', 'undoBar', 'undoMessage', 'undoDeleteButton'
 ].map(id => [id, document.getElementById(id)]));
 
 const presetQualities = { small: 55, balanced: 80, quality: 92 };
@@ -143,14 +142,6 @@ processItems = async function processItemsWithCompletionActions(items) {
     new Notification('DD Img Comp', { body: `${completed.length} image${completed.length === 1 ? '' : 's'} ready to download.`, icon: 'assets/favicon.svg' });
   }
 };
-
-function syncConsentBanner() {
-  enhancementElements.analyticsConsent.hidden = Boolean(localStorage.getItem('dd-analytics-consent')) || elements.welcomeDialog.open;
-}
-elements.welcomeDialog.addEventListener('close', syncConsentBanner);
-enhancementElements.acceptAnalytics.addEventListener('click', () => { localStorage.setItem('dd-analytics-consent', 'accepted'); syncConsentBanner(); });
-enhancementElements.declineAnalytics.addEventListener('click', () => { localStorage.setItem('dd-analytics-consent', 'declined'); syncConsentBanner(); });
-syncConsentBanner();
 
 document.addEventListener('keydown', event => {
   if (event.key !== '?' || ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) || document.querySelector('dialog[open]')) return;

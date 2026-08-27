@@ -29,7 +29,7 @@ DD Img Comp combines a responsive dark interface with fast, hardware-aware batch
 - Browser compatibility report, keyboard shortcut guide, FAQ, and changelog
 - Welcome, confirmation, full-preview, privacy, and developer profile dialogs
 - Protected analytics dashboard with daily, weekly, and monthly usage summaries
-- Consent-based anonymous aggregate usage storage through Netlify Functions and Netlify Blobs
+- Automatic anonymous aggregate usage storage through Netlify Functions and Netlify Blobs
 - Admin CSV export and optional 60-second automatic refresh
 - Netlify security headers for framing, content types, referrers, permissions, and content sources
 
@@ -45,7 +45,7 @@ Open `/admin.html` on the deployed website and sign in with the configured admin
 - CSV export of the displayed recent sessions
 - Optional automatic refresh while the dashboard tab is visible
 
-Analytics is opt-in. The endpoint stores only image count, byte totals, processing duration, savings, and a server timestamp after the visitor allows it. It never receives image data, previews, filenames, email addresses, IP addresses from application code, or persistent device identifiers.
+The analytics endpoint automatically stores only image count, byte totals, processing duration, savings, and a server timestamp. It never receives image data, previews, filenames, email addresses, IP addresses from application code, or persistent device identifiers.
 
 Authentication is verified inside a Netlify Function with `scrypt` and constant-time hash comparison. The password is not included in frontend JavaScript. The project contains a hash for the initial administrator credential. For production, rotate it using Netlify environment variables with **Functions** scope:
 
@@ -72,7 +72,7 @@ After deployment, verify these URLs:
 
 ## Privacy and browser support
 
-All image processing uses the browser's Canvas API. Files remain on the user's device. When a visitor opts in, anonymous aggregate metrics are sent after a compression batch to a Netlify Function and stored in Netlify Blobs for the admin dashboard. JSZip and FileSaver.js are loaded from cdnjs, and the interface's custom styling lives in `css/style.css` and `css/enhancements.css`.
+All image processing uses the browser's Canvas API. Files remain on the user's device. Anonymous aggregate metrics are sent after a compression batch to a Netlify Function and stored in Netlify Blobs for the admin dashboard. JSZip and FileSaver.js are loaded from cdnjs, and the interface's custom styling lives in `css/style.css` and `css/enhancements.css`.
 
 Use a current release of Chrome, Edge, Firefox, or Safari. AVIF input depends on the browser's AVIF decoding support. Extremely large image dimensions may exceed browser Canvas limits even when file size is below the 100 MB safety limit.
 
