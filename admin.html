@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#0f172a">
+  <title>Analytics Admin — DD Img Comp</title>
+  <link rel="icon" href="assets/favicon.svg?v=2" type="image/svg+xml">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-glow one" aria-hidden="true"></div><div class="admin-glow two" aria-hidden="true"></div>
+
+  <main>
+    <section id="loginView" class="login-view" aria-labelledby="loginTitle">
+      <form id="loginForm" class="login-card panel">
+        <img src="assets/logo.svg?v=2" alt="" width="58" height="58">
+        <span class="eyebrow">SECURE ADMIN ACCESS</span>
+        <h1 id="loginTitle">Welcome back</h1>
+        <p>Sign in to view anonymous compression activity.</p>
+        <label>Email<input id="adminEmail" type="email" autocomplete="username" required></label>
+        <label>Password<input id="adminPassword" type="password" autocomplete="current-password" required></label>
+        <p id="loginError" class="form-error" role="alert" hidden></p>
+        <button id="loginButton" type="submit">Sign in</button>
+        <a href="index.html">← Back to DD Img Comp</a>
+      </form>
+    </section>
+
+    <section id="dashboardView" class="dashboard" hidden>
+      <header class="admin-header">
+        <a class="admin-brand" href="index.html"><img src="assets/logo.svg?v=2" alt="" width="40" height="40"><span><strong>DD Img Comp</strong><small>Analytics Admin</small></span></a>
+        <div><span id="lastUpdated" class="last-updated">Not updated yet</span><button id="refreshButton" class="icon-button" type="button" title="Refresh" aria-label="Refresh analytics">↻</button><button id="logoutButton" class="logout-button" type="button">Log out</button></div>
+      </header>
+
+      <div class="dashboard-shell">
+        <div class="dashboard-title">
+          <div><span class="eyebrow">ANONYMOUS USAGE METRICS</span><h1>Compression overview</h1><p>Only aggregate counts, byte sizes, durations, and timestamps are stored.</p></div>
+          <div class="period-tabs" role="group" aria-label="Analytics period">
+            <button class="active" data-period="daily" type="button">Daily</button>
+            <button data-period="weekly" type="button">Weekly</button>
+            <button data-period="monthly" type="button">Monthly</button>
+          </div>
+        </div>
+
+        <div id="dashboardError" class="dashboard-error" role="alert" hidden></div>
+        <section class="metric-grid" aria-label="Summary statistics">
+          <article class="metric-card panel"><span>Images compressed</span><strong id="metricImages">0</strong><small id="metricSessions">0 sessions</small></article>
+          <article class="metric-card panel"><span>Original data</span><strong id="metricOriginal">0 MB</strong><small>Input volume</small></article>
+          <article class="metric-card panel"><span>WEBP output</span><strong id="metricCompressed">0 MB</strong><small>Compressed volume</small></article>
+          <article class="metric-card panel success"><span>Space saved</span><strong id="metricSaved">0 MB</strong><small id="metricSavingRate">0% average</small></article>
+          <article class="metric-card panel"><span>Processing time</span><strong id="metricTime">0 s</strong><small>Total browser work</small></article>
+          <article class="metric-card panel"><span>Avg. throughput</span><strong id="metricSpeed">0 MB/s</strong><small>Input processing speed</small></article>
+        </section>
+
+        <section class="chart-card panel" aria-labelledby="chartTitle">
+          <div class="section-title"><div><h2 id="chartTitle">Compression activity</h2><p>Image count by selected period</p></div><span id="chartTotal">0 images</span></div>
+          <div id="activityChart" class="activity-chart" aria-label="Compression activity chart"></div>
+          <div id="chartEmpty" class="empty-state" hidden>No compression activity is available for this period.</div>
+        </section>
+
+        <section class="activity-card panel" aria-labelledby="activityTitle">
+          <div class="section-title"><div><h2 id="activityTitle">Recent compression sessions</h2><p>Newest anonymous events first</p></div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date &amp; time</th><th>Images</th><th>Original</th><th>WEBP</th><th>Saved</th><th>Time</th></tr></thead>
+              <tbody id="activityRows"></tbody>
+            </table>
+          </div>
+          <div id="activityEmpty" class="empty-state" hidden>No sessions recorded yet.</div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="loadingOverlay" class="loading-overlay" hidden><span></span><strong>Loading analytics…</strong></div>
+  <script src="js/admin.js"></script>
+</body>
+</html>

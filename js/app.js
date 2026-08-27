@@ -82,6 +82,28 @@ async function waitWhilePaused() {
   while (state.paused && !state.cancelled) await new Promise(resolve => setTimeout(resolve, 120));
 }
 
+async function recordCompressionAnalytics(processedItems) {
+  const completedItems = processedItems.filter(item => item.status === 'completed' && item.compressedBlob);
+  if (!completedItems.length) return;
+  const payload = completedItems.reduce((totals, item) => ({
+    imageCount: totals.imageCount + 1,
+    originalBytes: totals.originalBytes + item.file.size,
+    compressedBytes: totals.compressedBytes + item.compressedBlob.size,
+    processingMs: totals.processingMs + item.processingTime
+  }), { imageCount: 0, originalBytes: 0, compressedBytes: 0, processingMs: 0 });
+
+  try {
+    await fetch('/.netlify/functions/record-compression', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    });
+  } catch {
+    // Analytics must never interrupt or delay local image compression.
+  }
+}
+
 function compressionConcurrency(items) {
   const hardwareThreads = navigator.hardwareConcurrency || 4;
   const deviceMemory = navigator.deviceMemory;
@@ -154,6 +176,7 @@ async function processItems(items) {
   };
 
   await Promise.all(Array.from({ length: concurrency }, worker));
+  void recordCompressionAnalytics(items);
   state.processing = false; state.paused = false;
   const wasCancelled = state.cancelled;
   state.cancelled = false;

@@ -1,12 +1,12 @@
 # DD Img Comp
 
-DD Img Comp is a free, privacy-focused image compression website that converts PNG, JPG/JPEG, and AVIF images into optimized WEBP files. Everything runs locally inside the browser, so images are never uploaded to or stored on an external server.
+DD Img Comp is a free, privacy-focused image compression website that converts PNG, JPG/JPEG, and AVIF images into optimized WEBP files. Image processing runs locally inside the browser, so image contents and filenames are never uploaded to or stored on an external server.
 
 ## About the website
 
 The website is designed for developers, designers, content creators, and anyone who needs smaller, web-ready images without sacrificing visual quality. Users can upload individual files or entire folders, adjust compression quality globally or per image, compare the original and compressed results, and download converted files individually or together in a ZIP archive.
 
-DD Img Comp combines a responsive dark/light interface with fast, hardware-aware batch processing. It supports up to 200 images per session and provides live information about file sizes, saved space, processing time, compression percentage, and compression speed. No installation, account, build process, or backend is required.
+DD Img Comp combines a responsive dark/light interface with fast, hardware-aware batch processing. It supports up to 200 images per session and provides live information about file sizes, saved space, processing time, compression percentage, and compression speed.
 
 ## Features
 
@@ -23,14 +23,70 @@ DD Img Comp combines a responsive dark/light interface with fast, hardware-aware
 - Persistent theme, quality, layout, and animation preferences
 - Responsive dark/light interface with reduced-motion support
 - Welcome, confirmation, full-preview, and developer profile dialogs
+- Protected analytics dashboard with daily, weekly, and monthly usage summaries
+- Anonymous aggregate usage storage through Netlify Functions and Netlify Blobs
 
+## Admin analytics
+
+Open `/admin.html` on the deployed website and sign in with the configured admin account. The dashboard displays:
+
+- Total compression sessions and images
+- Original, compressed, and saved data volume
+- Processing time and average throughput
+- Daily, weekly, or monthly activity charts
+- The 50 most recent anonymous compression sessions
+
+The analytics endpoint stores only image count, byte totals, processing duration, savings, and a server timestamp. It never receives image data, previews, filenames, email addresses, IP addresses from application code, or persistent device identifiers.
+
+Authentication is verified inside a Netlify Function with `scrypt` and constant-time hash comparison. The password is not included in frontend JavaScript. The project contains a hash for the initial administrator credential. For production, rotate it using Netlify environment variables with **Functions** scope:
+
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD_SALT`
+- `ADMIN_PASSWORD_HASH`
+
+Generate a new salt and hash locally:
+
+```bash
+node -e "const c=require('node:crypto');const salt=c.randomBytes(16).toString('hex');const hash=c.scryptSync('YOUR_NEW_PASSWORD',salt,64).toString('hex');console.log({salt,hash})"
+```
+
+## Deploy on Netlify
+
+The repository now includes `netlify.toml`, `package.json`, and `package-lock.json`. Connect the repository to Netlify and deploy normally. Netlify installs `@netlify/blobs`, bundles the functions in `netlify/functions/`, and provides the site-wide Blob store automatically.
+
+After deployment, verify these URLs:
+
+- `/` — image compressor
+- `/admin.html` — protected analytics dashboard
+- `/.netlify/functions/record-compression` — anonymous write endpoint (POST only)
+- `/.netlify/functions/admin-analytics` — authenticated dashboard endpoint (GET only)
 
 ## Privacy and browser support
 
-All processing uses the browser's Canvas API. Files remain on the user's device. JSZip and FileSaver.js are loaded from cdnjs, and Tailwind's CDN script is included as requested; the interface's custom styling lives in `css/style.css`.
+All image processing uses the browser's Canvas API. Files remain on the user's device. After a compression batch, anonymous aggregate metrics are sent to a Netlify Function and stored in Netlify Blobs for the admin dashboard. JSZip and FileSaver.js are loaded from cdnjs, and Tailwind's CDN script is included as requested; the interface's custom styling lives in `css/style.css`.
 
 Use a current release of Chrome, Edge, Firefox, or Safari. AVIF input depends on the browser's AVIF decoding support. Extremely large image dimensions may exceed browser Canvas limits even when file size is below the 100 MB safety limit.
 
+## Project structure
+
+```text
+DD-Img-Comp/
+├── index.html
+├── admin.html
+├── netlify.toml
+├── package.json
+├── package-lock.json
+├── css/
+│   ├── style.css
+│   └── admin.css
+├── js/
+│   ├── app.js
+│   ├── admin.js
+│   └── ...
+├── netlify/functions/
+│   ├── record-compression.mjs
+│   └── admin-analytics.mjs
+└── assets/
 ```
 
 ## Developer
