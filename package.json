@@ -2,8 +2,9 @@
   "name": "dd-img-comp",
   "version": "1.1.0",
   "private": true,
-  "description": "Private client-side WEBP compressor with anonymous aggregate usage analytics.",
+  "description": "Private multi-format client-side image compressor with anonymous aggregate usage analytics.",
   "dependencies": {
+    "@jsquash/avif": "^2.1.1",
     "@netlify/blobs": "^10.0.10"
   }
 }

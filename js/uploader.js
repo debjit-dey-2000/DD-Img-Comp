@@ -1,8 +1,8 @@
-const extensionPattern = /\.(png|jpe?g|avif)$/i;
+const extensionPattern = /\.(png|jpe?g|avif|webp)$/i;
 
 function validateFile(file) {
   if (!(file instanceof File)) return 'Not a valid file.';
-  if (!ACCEPTED_TYPES.has(file.type) && !extensionPattern.test(file.name)) return 'Unsupported format. Use PNG, JPG, JPEG, or AVIF.';
+  if (!ACCEPTED_TYPES.has(file.type) && !extensionPattern.test(file.name)) return 'Unsupported format. Use PNG, JPG, JPEG, AVIF, or WEBP.';
   if (file.size > MAX_FILE_SIZE) return 'File is larger than the 100 MB safety limit.';
   if (file.size === 0) return 'The file is empty.';
   return null;
@@ -12,7 +12,7 @@ function fileSignature(file) {
   return `${file.name.toLowerCase()}::${file.size}::${file.lastModified}`;
 }
 
-function ingestFiles(fileList, existingItems) {
+function ingestFiles(fileList, existingItems, outputFormat = 'image/webp') {
   const accepted = [];
   const rejected = [];
   const signatures = new Set(existingItems.map(item => item.signature));
@@ -30,7 +30,7 @@ function ingestFiles(fileList, existingItems) {
     else {
       signatures.add(signature);
       accepted.push({
-        id: uid(), file, signature, name: webpName(file.name), width: 0, height: 0,
+        id: uid(), file, signature, name: outputFilename(file.name, outputFormat), width: 0, height: 0,
         originalUrl: URL.createObjectURL(file), compressedUrl: '', compressedBlob: null,
         status: 'pending', selected: false, qualityOverride: null, progress: 0,
         processingTime: 0, error: '', uploadedAt: Date.now() + accepted.length

@@ -1,5 +1,6 @@
 const enhancementElements = Object.fromEntries([
-  'compressionPreset', 'skipLargerToggle', 'autoDownloadToggle', 'notificationToggle',
+  'compressionPreset', 'outputFormat', 'skipLargerToggle', 'autoDownloadToggle', 'notificationToggle',
+  'transformButton', 'transformSummary', 'transformDialog', 'transformClose', 'resizeMode', 'resizeWidth', 'resizeHeight', 'transformReset', 'transformApply',
   'compatibilityButton', 'compatibilityDialog', 'compatibilityClose', 'compatibilityAcknowledge', 'compatibilityResults',
   'toolHelpButton', 'helpDialog', 'helpDialogClose', 'helpAcknowledge',
   'bulkRenameButton', 'bulkRenameDialog', 'bulkRenameClose', 'bulkRenamePrefix', 'bulkRenameApply',
@@ -16,18 +17,37 @@ function presetForQuality(quality) {
 }
 
 function syncEnhancementControls() {
+  enhancementElements.outputFormat.value = state.preferences.outputFormat;
   enhancementElements.compressionPreset.value = presetForQuality(state.preferences.quality);
   enhancementElements.skipLargerToggle.checked = state.preferences.skipLarger;
   enhancementElements.autoDownloadToggle.checked = state.preferences.autoDownload;
   enhancementElements.notificationToggle.checked = state.preferences.notifications;
   enhancementElements.retryFailedButton.disabled = state.processing || !state.items.some(item => item.status === 'failed');
   enhancementElements.errorReportButton.disabled = !state.items.some(item => item.status === 'failed' || item.status === 'skipped');
+  const transform = state.preferences.transform;
+  enhancementElements.transformSummary.textContent = transform.mode === 'none'
+    ? 'Original dimensions'
+    : `${transform.width || 'Auto'} × ${transform.height || 'Auto'} · ${transform.mode === 'cover' ? 'Center crop' : transform.mode}`;
 }
 
 const baseRender = render;
 render = function enhancedRender(nextState) { baseRender(nextState); syncEnhancementControls(); };
 syncEnhancementControls();
 persist();
+
+function invalidateGeneratedOutputs() {
+  state.items.forEach(item => {
+    item.name = outputFilename(item.name, state.preferences.outputFormat);
+    if (item.status === 'completed' || item.status === 'skipped') invalidate(item);
+  });
+  render(state);
+}
+
+enhancementElements.outputFormat.addEventListener('change', event => {
+  state.preferences.outputFormat = event.target.value;
+  persist(); invalidateGeneratedOutputs();
+  toast('Output format updated', `New files will be generated as ${outputFormatLabel(event.target.value)}.`, 'success');
+});
 
 enhancementElements.compressionPreset.addEventListener('change', event => {
   const quality = presetQualities[event.target.value];
@@ -62,7 +82,7 @@ enhancementElements.toolHelpButton.addEventListener('click', () => openLockedDia
 function renderCompatibility() {
   const folderProbe = document.createElement('input'); folderProbe.type = 'file';
   const checks = [
-    ['WEBP encoding', supportsWebP()], ['Canvas processing', Boolean(document.createElement('canvas').getContext)],
+    ['WEBP encoding', supportsWebP()], ['AVIF encoding (local WASM)', 'WebAssembly' in window], ['Canvas processing', Boolean(document.createElement('canvas').getContext)],
     ['Fast image decoding', 'createImageBitmap' in window], ['Clipboard image paste', 'ClipboardEvent' in window],
     ['Folder selection', 'webkitdirectory' in folderProbe], ['Completion notifications', 'Notification' in window]
   ];
@@ -83,11 +103,52 @@ enhancementElements.bulkRenameButton.addEventListener('click', () => {
 enhancementElements.bulkRenameClose.addEventListener('click', () => enhancementElements.bulkRenameDialog.close());
 enhancementElements.bulkRenameApply.addEventListener('click', () => {
   const selected = state.items.filter(item => item.selected);
-  const prefix = safeFilename(enhancementElements.bulkRenamePrefix.value).replace(/\.webp$/i, '') || 'image';
+  const prefix = safeFilename(enhancementElements.bulkRenamePrefix.value).replace(/\.[^.]+$/i, '') || 'image';
   const digits = Math.max(2, String(selected.length).length);
-  selected.forEach((item, index) => { item.name = `${prefix}-${String(index + 1).padStart(digits, '0')}.webp`; });
+  const extension = outputExtension(state.preferences.outputFormat);
+  selected.forEach((item, index) => { item.name = `${prefix}-${String(index + 1).padStart(digits, '0')}.${extension}`; });
   enhancementElements.bulkRenameDialog.close(); render(state);
   toast('Files renamed', `${selected.length} selected image${selected.length === 1 ? '' : 's'} renamed.`, 'success');
+});
+
+function syncTransformFields() {
+  const disabled = enhancementElements.resizeMode.value === 'none';
+  enhancementElements.resizeWidth.disabled = disabled;
+  enhancementElements.resizeHeight.disabled = disabled;
+}
+
+enhancementElements.transformButton.addEventListener('click', () => {
+  const transform = state.preferences.transform;
+  enhancementElements.resizeMode.value = transform.mode;
+  enhancementElements.resizeWidth.value = transform.width || '';
+  enhancementElements.resizeHeight.value = transform.height || '';
+  syncTransformFields();
+  openLockedDialog(enhancementElements.transformDialog, enhancementElements.resizeMode);
+});
+enhancementElements.resizeMode.addEventListener('change', syncTransformFields);
+enhancementElements.transformClose.addEventListener('click', () => enhancementElements.transformDialog.close());
+enhancementElements.transformReset.addEventListener('click', () => {
+  enhancementElements.resizeMode.value = 'none';
+  enhancementElements.resizeWidth.value = '';
+  enhancementElements.resizeHeight.value = '';
+  syncTransformFields();
+});
+enhancementElements.transformApply.addEventListener('click', () => {
+  const mode = enhancementElements.resizeMode.value;
+  const width = enhancementElements.resizeWidth.value ? Number(enhancementElements.resizeWidth.value) : null;
+  const height = enhancementElements.resizeHeight.value ? Number(enhancementElements.resizeHeight.value) : null;
+  if (mode !== 'none' && !width && !height) {
+    toast('Dimensions required', 'Enter a width, a height, or both.', 'error'); return;
+  }
+  if ((width && (width < 1 || width > 12000)) || (height && (height < 1 || height > 12000))) {
+    toast('Invalid dimensions', 'Width and height must be between 1 and 12,000 pixels.', 'error'); return;
+  }
+  if (width && height && width * height > 100_000_000) {
+    toast('Dimensions too large', 'The output cannot exceed 100 megapixels.', 'error'); return;
+  }
+  state.preferences.transform = { mode, width: mode === 'none' ? null : width, height: mode === 'none' ? null : height };
+  persist(); enhancementElements.transformDialog.close(); invalidateGeneratedOutputs();
+  toast('Resize settings applied', mode === 'none' ? 'Original dimensions will be preserved.' : 'The next compression will use your custom dimensions.', 'success');
 });
 
 enhancementElements.retryFailedButton.addEventListener('click', () => {

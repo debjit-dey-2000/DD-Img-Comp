@@ -45,7 +45,7 @@ function findItem(id) { return state.items.find(item => item.id === id); }
 
 async function addFiles(files) {
   const wasEmpty = state.items.length === 0;
-  const { accepted, rejected } = ingestFiles(files, state.items);
+  const { accepted, rejected } = ingestFiles(files, state.items, state.preferences.outputFormat);
   state.items.push(...accepted);
   if (wasEmpty) state.visibleLimit = 10;
   render(state);
@@ -151,7 +151,10 @@ async function processItems(items) {
       updateOverallProgress();
       try {
         const quality = item.qualityOverride ?? state.preferences.quality;
-        const result = await compressImage(item, quality, progress => {
+        const result = await compressImage(item, quality, {
+          mimeType: state.preferences.outputFormat,
+          transform: state.preferences.transform
+        }, progress => {
           item.progress = progress;
           progressById.set(item.id, progress);
           updateOverallProgress();
@@ -162,7 +165,7 @@ async function processItems(items) {
           if (item.compressedUrl) URL.revokeObjectURL(item.compressedUrl);
           item.compressedBlob = null; item.compressedUrl = '';
           item.status = 'skipped'; item.progress = 100;
-          item.error = 'Skipped because the WEBP result was not smaller than the original.';
+          item.error = `Skipped because the ${outputFormatLabel(state.preferences.outputFormat)} result was not smaller than the original.`;
           item.processingTime = result.time;
         } else {
           if (item.compressedUrl) URL.revokeObjectURL(item.compressedUrl);
@@ -208,7 +211,7 @@ async function zipItems(items) {
   try {
     updateProgress(0, items.length, 'Building ZIP archive…', 0);
     await downloadZip(items, percent => updateProgress(items.length, items.length, 'Building ZIP archive…', percent));
-    toast('Download ready', 'Your WEBP archive has been created.', 'success');
+    toast('Download ready', 'Your compressed image archive has been created.', 'success');
   } catch (error) { toast('Download failed', error.message, 'error'); }
   finally { setTimeout(hideProgress, 800); }
 }
@@ -245,6 +248,7 @@ elements.qualitySlider.addEventListener('input', event => {
 });
 
 elements.compressAllButton.addEventListener('click', () => processItems([...state.items]));
+elements.queueCompressAllButton.addEventListener('click', () => processItems([...state.items]));
 elements.compressSelectedButton.addEventListener('click', () => processItems(state.items.filter(item => item.selected)));
 elements.pauseButton.addEventListener('click', () => {
   state.paused = !state.paused;
@@ -283,8 +287,8 @@ elements.imageGrid.addEventListener('click', event => {
   else if (event.target.closest('.full-preview')) openPreview(elements.previewDialog, item);
   else if (event.target.closest('.reset-quality')) { item.qualityOverride = null; if (item.status === 'completed') invalidate(item); render(state); }
   else if (event.target.closest('.rename-one')) {
-    const proposed = prompt('Rename WEBP file:', item.name);
-    if (proposed !== null) { item.name = webpName(safeFilename(proposed)); render(state); }
+    const proposed = prompt(`Rename ${outputFormatLabel(state.preferences.outputFormat)} file:`, item.name);
+    if (proposed !== null) { item.name = outputFilename(safeFilename(proposed), state.preferences.outputFormat); render(state); }
   }
 });
 

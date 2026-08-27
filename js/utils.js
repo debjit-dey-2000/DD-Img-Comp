@@ -1,4 +1,4 @@
-const ACCEPTED_TYPES = new Set(['image/png', 'image/jpeg', 'image/avif']);
+const ACCEPTED_TYPES = new Set(['image/png', 'image/jpeg', 'image/avif', 'image/webp']);
 const MAX_IMAGES = 200;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
@@ -24,7 +24,19 @@ function formatSpeed(bytes = 0, milliseconds = 0) {
 }
 
 function webpName(name) {
-  return `${name.replace(/\.[^.]+$/, '') || 'image'}.webp`;
+  return outputFilename(name, 'image/webp');
+}
+
+function outputExtension(mimeType = 'image/webp') {
+  return ({ 'image/webp': 'webp', 'image/avif': 'avif', 'image/jpeg': 'jpg', 'image/png': 'png' })[mimeType] || 'webp';
+}
+
+function outputFormatLabel(mimeType = 'image/webp') {
+  return ({ 'image/webp': 'WEBP', 'image/avif': 'AVIF', 'image/jpeg': 'JPEG', 'image/png': 'PNG' })[mimeType] || 'WEBP';
+}
+
+function outputFilename(name, mimeType = 'image/webp') {
+  return `${name.replace(/\.[^.]+$/, '') || 'image'}.${outputExtension(mimeType)}`;
 }
 
 function safeFilename(name) {

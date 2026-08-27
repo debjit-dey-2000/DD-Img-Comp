@@ -1,6 +1,6 @@
 # DD Img Comp
 
-DD Img Comp is a free, privacy-focused image compression website that converts PNG, JPG/JPEG, and AVIF images into optimized WEBP files. Image processing runs locally inside the browser, so image contents and filenames are never uploaded to or stored on an external server.
+DD Img Comp is a free, privacy-focused image compression website that converts PNG, JPG/JPEG, AVIF, and existing high-quality WEBP images into optimized WEBP, AVIF, JPEG, or PNG output. Image processing runs locally inside the browser, so image contents and filenames are never uploaded to or stored on an external server.
 
 ## About the website
 
@@ -10,13 +10,16 @@ DD Img Comp combines a responsive dark interface with fast, hardware-aware batch
 
 ## Features
 
-- Drag-and-drop, file, folder, and clipboard input (up to 200 images)
+- Drag-and-drop, file, folder, and clipboard input for PNG, JPG/JPEG, AVIF, and WEBP (up to 200 images)
 - Global quality plus per-image overrides
+- WEBP, AVIF, JPEG, and PNG output selection
+- Custom dimensions with aspect-preserving fit, center crop, or exact stretch modes
+- Local WebAssembly AVIF encoding powered by `@jsquash/avif`
 - Small-file, balanced, and high-quality compression presets
-- Optional protection that skips WEBP results larger than the original
+- Optional protection that skips output files larger than the original
 - Asynchronous batch processing with pause, resume, cancel, and progress
 - Before/after comparison previews with mouse, touch, and keyboard controls
-- Individual WEBP downloads and ZIP batch downloads
+- Individual format-aware downloads and ZIP batch downloads
 - Search, sorting, status filters, selection, individual and bulk rename, and batch actions
 - Retry failed images, downloadable issue reports, and seven-second undo after deletion
 - Optional automatic downloads and browser completion notifications
@@ -41,7 +44,8 @@ Open `/admin.html` on the deployed website and sign in with the configured admin
 - Original, compressed, and saved data volume
 - Processing time and average throughput
 - Daily, weekly, or monthly activity charts
-- The 50 most recent anonymous compression sessions
+- Custom date-range filtering and advanced chart metric selection
+- Paginated anonymous compression sessions with 10, 20, or 50 rows per page
 - CSV export of the displayed recent sessions
 - Optional automatic refresh while the dashboard tab is visible
 
@@ -72,7 +76,7 @@ After deployment, verify these URLs:
 
 ## Privacy and browser support
 
-All image processing uses the browser's Canvas API. Files remain on the user's device. Anonymous aggregate metrics are sent after a compression batch to a Netlify Function and stored in Netlify Blobs for the admin dashboard. JSZip and FileSaver.js are loaded from cdnjs, and the interface's custom styling lives in `css/style.css` and `css/enhancements.css`.
+All image processing uses browser APIs and local code. Files remain on the user's device. Anonymous aggregate metrics are sent after a compression batch to a Netlify Function and stored in Netlify Blobs for the admin dashboard. JSZip and FileSaver.js are loaded from cdnjs. AVIF output uses a locally served, single-threaded `@jsquash/avif` WebAssembly encoder.
 
 Use a current release of Chrome, Edge, Firefox, or Safari. AVIF input depends on the browser's AVIF decoding support. Extremely large image dimensions may exceed browser Canvas limits even when file size is below the 100 MB safety limit.
 
@@ -95,6 +99,8 @@ DD-Img-Comp/
 ├── netlify/functions/
 │   ├── record-compression.mjs
 │   └── admin-analytics.mjs
+├── vendor/
+│   └── avif/            # Local AVIF encoder and WASM binary
 └── assets/
 ```
 

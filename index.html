@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Private, browser-based batch image compression to WEBP.">
+  <meta name="description" content="Private, browser-based batch image compression to WEBP, AVIF, JPEG, and PNG.">
   <meta name="theme-color" content="#0f172a">
-  <title>DD Img Comp — Private WEBP Image Compressor</title>
+  <title>DD Img Comp — Private Multi-format Image Compressor</title>
   <link rel="icon" href="assets/favicon.svg?v=2" type="image/svg+xml">
   <link rel="preconnect" href="https://cdn.tailwindcss.com">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -43,13 +43,13 @@
   <main id="workspace" class="page-shell">
     <section class="hero" aria-labelledby="heroTitle">
       <span class="eyebrow">LOCAL-FIRST · FAST · SECURE</span>
-      <h1 id="heroTitle">Convert Images to<br><span>Optimized WEBP Instantly</span></h1>
-      <p>Compress PNG, JPG, JPEG, and AVIF files in your browser. Keep the quality, lose the weight—and keep every pixel private.</p>
+      <h1 id="heroTitle">Convert Images to<br><span>Optimized Formats Instantly</span></h1>
+      <p>Compress PNG, JPG, JPEG, AVIF, and high-quality WEBP files in your browser. Keep the quality, lose the weight—and keep every pixel private.</p>
     </section>
 
     <section id="dropZone" class="drop-zone glass-card" tabindex="0" role="button" aria-label="Upload images. Drop files, press Enter to browse, or paste an image.">
-      <input id="fileInput" type="file" accept="image/png,image/jpeg,image/avif,.png,.jpg,.jpeg,.avif" multiple hidden>
-      <input id="folderInput" type="file" accept="image/png,image/jpeg,image/avif,.png,.jpg,.jpeg,.avif" webkitdirectory directory multiple hidden>
+      <input id="fileInput" type="file" accept="image/png,image/jpeg,image/avif,image/webp,.png,.jpg,.jpeg,.avif,.webp" multiple hidden>
+      <input id="folderInput" type="file" accept="image/png,image/jpeg,image/avif,image/webp,.png,.jpg,.jpeg,.avif,.webp" webkitdirectory directory multiple hidden>
       <div class="upload-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
       </div>
@@ -59,7 +59,7 @@
         <button id="browseButton" class="button primary" type="button">Browse files</button>
         <button id="folderButton" class="button secondary" type="button">Choose folder</button>
       </div>
-      <div class="upload-meta"><span>PNG</span><span>JPG</span><span>JPEG</span><span>AVIF</span><i></i><span>Up to 200 images</span><i></i><span>Paste with Ctrl + V</span></div>
+      <div class="upload-meta"><span>PNG</span><span>JPG</span><span>JPEG</span><span>AVIF</span><span>WEBP</span><i></i><span>Up to 200 images</span><i></i><span>Paste with Ctrl + V</span></div>
     </section>
 
     <section id="controlPanel" class="control-panel glass-card" aria-labelledby="qualityTitle">
@@ -68,7 +68,7 @@
           <div><span class="mini-icon" aria-hidden="true">✦</span><h2 id="qualityTitle">Compression quality</h2></div>
           <output id="qualityOutput" for="qualitySlider">80%</output>
         </div>
-        <input id="qualitySlider" class="range" type="range" min="1" max="100" value="80" aria-label="Global WEBP quality">
+        <input id="qualitySlider" class="range" type="range" min="1" max="100" value="80" aria-label="Global output quality">
         <div class="range-labels"><span>Smaller file</span><span>Balanced</span><span>Best quality</span></div>
       </div>
       <div class="control-divider"></div>
@@ -84,18 +84,20 @@
     <section class="quick-settings glass-card" aria-labelledby="quickSettingsTitle">
       <div class="quick-settings-heading"><div><span class="mini-icon" aria-hidden="true">⚙</span><h2 id="quickSettingsTitle">Quick settings</h2></div><button id="compatibilityButton" type="button">Check browser</button></div>
       <div class="quick-settings-grid">
+        <label>Output format<select id="outputFormat"><option value="image/webp">WEBP</option><option value="image/avif">AVIF</option><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option></select></label>
         <label>Compression preset<select id="compressionPreset"><option value="custom">Custom</option><option value="small">Small file · 55%</option><option value="balanced" selected>Balanced · 80%</option><option value="quality">High quality · 92%</option></select></label>
+        <div class="transform-setting"><span>Resize &amp; crop</span><strong id="transformSummary">Original dimensions</strong><button id="transformButton" type="button">Configure</button></div>
         <label class="toggle-setting"><input id="skipLargerToggle" type="checkbox" checked><span><strong>Skip larger results</strong><small>Keep only useful compression</small></span></label>
         <label class="toggle-setting"><input id="autoDownloadToggle" type="checkbox"><span><strong>Auto-download</strong><small>Download when batch completes</small></span></label>
         <label class="toggle-setting"><input id="notificationToggle" type="checkbox"><span><strong>Completion notification</strong><small>Notify when processing finishes</small></span></label>
       </div>
-      <p class="metadata-note"><span>✓</span> Canvas conversion automatically removes EXIF, GPS, camera, and other embedded metadata from generated WEBP files.</p>
+      <p class="metadata-note"><span>✓</span> Canvas conversion automatically removes EXIF, GPS, camera, and other embedded metadata from generated output files.</p>
     </section>
 
     <section id="statsSection" class="stats-grid" aria-label="Compression statistics">
       <article class="stat-card glass-card"><span>Images uploaded</span><strong id="statUploaded">0</strong><small id="statConverted">0 converted</small></article>
       <article class="stat-card glass-card"><span>Original size</span><strong id="statOriginal">0 B</strong><small>Total uploaded</small></article>
-      <article class="stat-card glass-card"><span>Compressed size</span><strong id="statCompressed">0 B</strong><small>WEBP output</small></article>
+      <article class="stat-card glass-card"><span>Compressed size</span><strong id="statCompressed">0 B</strong><small id="statOutputLabel">WEBP output</small></article>
       <article class="stat-card glass-card success"><span>Space saved</span><strong id="statSaved">0 B</strong><small id="statAverage">0% average</small></article>
       <article class="stat-card glass-card"><span>Processing time</span><strong id="statTime">0 ms</strong><small>Completed images</small></article>
       <article class="stat-card glass-card"><span>Compression speed</span><strong id="statSpeed">0 MB/s</strong><small>Input throughput</small></article>
@@ -145,7 +147,7 @@
 
       <div class="footer-actions glass-card">
         <button id="clearAllButton" class="button danger secondary" type="button">Clear all</button>
-        <div class="footer-action-group"><button id="retryFailedButton" class="button secondary" type="button" disabled>Retry failed</button><button id="errorReportButton" class="button secondary" type="button" disabled>Error report</button><button id="downloadAllButton" class="button primary" type="button" disabled>Download all as ZIP</button></div>
+        <div class="footer-action-group"><button id="queueCompressAllButton" class="button primary" type="button" disabled>Compress all</button><button id="retryFailedButton" class="button secondary" type="button" disabled>Retry failed</button><button id="errorReportButton" class="button secondary" type="button" disabled>Error report</button><button id="downloadAllButton" class="button primary" type="button" disabled>Download all as ZIP</button></div>
       </div>
 
       <div id="imageGrid" class="image-grid" aria-live="polite"></div>
@@ -159,18 +161,18 @@
     <section class="info-sections" aria-label="How DD Img Comp works">
       <article class="info-card glass-card"><span>01</span><h2>Upload privately</h2><p>Add files, folders, or pasted images. Image contents stay inside your browser.</p></article>
       <article class="info-card glass-card"><span>02</span><h2>Compress intelligently</h2><p>Choose a preset or fine-tune quality while hardware-aware processing handles the queue.</p></article>
-      <article class="info-card glass-card"><span>03</span><h2>Compare &amp; download</h2><p>Review before/after results and download individual WEBPs or one ZIP archive.</p></article>
+      <article class="info-card glass-card"><span>03</span><h2>Compare &amp; download</h2><p>Review before/after results and download individual output files or one ZIP archive.</p></article>
     </section>
 
     <section class="faq-section glass-card" aria-labelledby="faqTitle">
       <div class="content-heading"><span class="eyebrow">GOOD TO KNOW</span><h2 id="faqTitle">Frequently asked questions</h2></div>
       <details open><summary>Are my images uploaded?</summary><p>No. Original images and compressed files are processed locally. Only anonymous aggregate totals—image count, byte sizes, and processing duration—are sent for the admin dashboard.</p></details>
-      <details><summary>Why can a WEBP occasionally be larger?</summary><p>Already-optimized images may not shrink further. Enable “Skip larger results” to exclude those outputs automatically.</p></details>
+      <details><summary>Why can an output occasionally be larger?</summary><p>Already-optimized images or lossless PNG output may not shrink further. Enable “Skip larger results” to exclude those outputs automatically.</p></details>
       <details><summary>Does conversion remove private metadata?</summary><p>Yes. Canvas re-encoding creates a new image without EXIF, GPS, camera, or other original metadata.</p></details>
       <details><summary>Which browsers work best?</summary><p>Current Chrome, Edge, Firefox, and Safari releases provide the best Canvas, WEBP, AVIF, clipboard, and folder support.</p></details>
     </section>
 
-    <section class="changelog glass-card"><span class="eyebrow">LATEST UPDATE</span><h2>What’s new in v1.2</h2><p>Compression presets, skip-larger protection, bulk rename, retry tools, error reports, notifications, keyboard help, admin exports, and security improvements.</p></section>
+    <section class="changelog glass-card"><span class="eyebrow">LATEST UPDATE</span><h2>What’s new in v1.3</h2><p>WEBP, AVIF, JPEG, and PNG output, custom resize and center crop, compression presets, bulk tools, and advanced date-filtered admin analytics.</p></section>
   </main>
 
   <footer>
@@ -237,7 +239,9 @@
 
   <dialog id="compatibilityDialog" class="utility-dialog" aria-labelledby="compatibilityTitle"><div class="utility-dialog-header"><div><span class="eyebrow">SYSTEM CHECK</span><h2 id="compatibilityTitle">Browser compatibility</h2></div><button id="compatibilityClose" class="icon-button" type="button" aria-label="Close compatibility report">×</button></div><div id="compatibilityResults" class="compatibility-results"></div><button id="compatibilityAcknowledge" class="button primary utility-action" type="button">Done</button></dialog>
 
-  <dialog id="bulkRenameDialog" class="utility-dialog" aria-labelledby="bulkRenameTitle"><div class="utility-dialog-header"><div><span class="eyebrow">BATCH TOOL</span><h2 id="bulkRenameTitle">Bulk rename selected images</h2></div><button id="bulkRenameClose" class="icon-button" type="button" aria-label="Close bulk rename">×</button></div><label class="dialog-field">Filename prefix<input id="bulkRenamePrefix" type="text" value="image" maxlength="60" placeholder="image"></label><p class="dialog-hint">Selected files will be named image-01.webp, image-02.webp, and so on.</p><button id="bulkRenameApply" class="button primary utility-action" type="button">Rename selected</button></dialog>
+  <dialog id="bulkRenameDialog" class="utility-dialog" aria-labelledby="bulkRenameTitle"><div class="utility-dialog-header"><div><span class="eyebrow">BATCH TOOL</span><h2 id="bulkRenameTitle">Bulk rename selected images</h2></div><button id="bulkRenameClose" class="icon-button" type="button" aria-label="Close bulk rename">×</button></div><label class="dialog-field">Filename prefix<input id="bulkRenamePrefix" type="text" value="image" maxlength="60" placeholder="image"></label><p class="dialog-hint">Selected files will use the current output format and numbered names such as image-01.</p><button id="bulkRenameApply" class="button primary utility-action" type="button">Rename selected</button></dialog>
+
+  <dialog id="transformDialog" class="utility-dialog" aria-labelledby="transformTitle"><div class="utility-dialog-header"><div><span class="eyebrow">IMAGE SIZE</span><h2 id="transformTitle">Resize &amp; crop</h2></div><button id="transformClose" class="icon-button" type="button" aria-label="Close resize and crop settings">×</button></div><label class="dialog-field">Mode<select id="resizeMode"><option value="none">Keep original dimensions</option><option value="fit">Fit inside dimensions</option><option value="cover">Fill dimensions · center crop</option><option value="stretch">Exact dimensions · stretch</option></select></label><div class="dimension-grid"><label class="dialog-field">Width (px)<input id="resizeWidth" type="number" min="1" max="12000" inputmode="numeric" placeholder="Original"></label><label class="dialog-field">Height (px)<input id="resizeHeight" type="number" min="1" max="12000" inputmode="numeric" placeholder="Original"></label></div><p class="dialog-hint">Fit preserves the full image. Center crop fills the exact size without distortion. Enter one dimension to preserve the original aspect ratio.</p><div class="dialog-button-row"><button id="transformReset" class="button secondary" type="button">Reset</button><button id="transformApply" class="button primary" type="button">Apply settings</button></div></dialog>
 
   <dialog id="developerDialog" class="developer-dialog" aria-labelledby="developerName" aria-describedby="developerBio">
     <button id="developerDialogClose" class="icon-button developer-close" type="button" aria-label="Close developer profile">×</button>
@@ -272,7 +276,7 @@
       </section>
       <section>
         <h3>2. Images and generated files</h3>
-        <p>Your original images, previews, compressed WEBP files, filenames, and ZIP archives remain on your device for the duration of the browser session. Generated files are downloaded only when you request them. Closing or refreshing the page clears the active image queue.</p>
+        <p>Your original images, previews, compressed output files, filenames, and ZIP archives remain on your device for the duration of the browser session. Generated files are downloaded only when you request them. Closing or refreshing the page clears the active image queue.</p>
       </section>
       <section>
         <h3>3. Information stored in your browser</h3>
@@ -280,7 +284,7 @@
       </section>
       <section>
         <h3>4. External resources</h3>
-        <p>Tailwind CSS, JSZip, FileSaver.js, and web fonts may be loaded from third-party content delivery networks. Those providers may receive standard technical request information such as your IP address, browser type, and requested resource. Your images are never included in these requests.</p>
+        <p>Tailwind CSS, JSZip, FileSaver.js, and web fonts may be loaded from third-party content delivery networks. The local AVIF WebAssembly encoder runs on your device and does not upload image data. External providers may receive standard technical request information such as your IP address, browser type, and requested resource, but your images are never included in these requests.</p>
       </section>
       <section>
         <h3>5. Cookies, analytics, and data sales</h3>
@@ -310,7 +314,7 @@
         <div class="after-layer"><img class="after-image" alt="Compressed image preview" loading="lazy"></div>
         <span class="compare-label before-label">Before</span><span class="compare-label after-label">After</span>
         <div class="compare-handle"><span>↔</span></div>
-        <div class="preview-placeholder"><span>WEBP preview appears after compression</span></div>
+        <div class="preview-placeholder"><span>Output preview appears after compression</span></div>
       </div>
       <div class="card-body">
         <div class="file-heading"><div><strong class="file-name"></strong><small class="file-details"></small></div><button class="icon-button full-preview" type="button" aria-label="Preview full size">⛶</button></div>
@@ -320,7 +324,7 @@
           <button class="reset-quality" type="button">Use global</button>
         </div>
         <div class="file-stats">
-          <div><span>Original</span><strong class="original-size">—</strong></div><div><span>WEBP</span><strong class="compressed-size">—</strong></div><div><span>Saved</span><strong class="saved-percent">—</strong></div>
+          <div><span>Original</span><strong class="original-size">—</strong></div><div><span class="output-format-label">WEBP</span><strong class="compressed-size">—</strong></div><div><span>Saved</span><strong class="saved-percent">—</strong></div>
         </div>
         <div class="item-progress"><span></span></div>
         <div class="card-actions">

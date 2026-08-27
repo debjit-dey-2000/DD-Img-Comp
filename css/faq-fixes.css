@@ -1,10 +1,7 @@
 .quick-settings-grid select {
   color-scheme: dark;
-  /* background-color: #17243a; */
+  background-color: #17243a;
   color: #f8fafc;
-}
-.quick-settings-grid select:focus{
-  outline: none;
 }
 
 .quick-settings-grid select option {
@@ -15,6 +12,79 @@
 .quick-settings-grid select option:checked {
   background: #17243a linear-gradient(0deg, #17243a 0%, #17243a 100%);
   color: #f8fafc;
+}
+
+.upload-meta span:nth-child(5) {
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: #aab8cc;
+}
+
+.quick-settings-grid {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.transform-setting {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.transform-setting > span {
+  grid-column: 1 / -1;
+}
+
+.transform-setting strong {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transform-setting button {
+  border: 0;
+  background: transparent;
+  color: var(--blue-2);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.utility-dialog select {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.dimension-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.dialog-button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+@media (max-width: 560px) {
+  .dimension-grid { grid-template-columns: 1fr; }
+  .dialog-button-row .button { flex: 1; }
 }
 
 .faq-section details {
@@ -39,8 +109,7 @@
   content: "";
   width: 8px;
   height: 8px;
-  /* flex: 0 0 auto; */
-  margin: 0 10px 0 0;
+  flex: 0 0 auto;
   border-right: 2px solid var(--blue-2);
   border-bottom: 2px solid var(--blue-2);
   transform: rotate(45deg);

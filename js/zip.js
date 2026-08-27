@@ -1,10 +1,11 @@
 function uniqueName(name, used) {
   const safe = safeFilename(name);
   if (!used.has(safe.toLowerCase())) { used.add(safe.toLowerCase()); return safe; }
-  const base = safe.replace(/\.webp$/i, '');
+  const extension = safe.match(/\.[^.]+$/)?.[0] || '.webp';
+  const base = safe.slice(0, -extension.length);
   let index = 2;
-  while (used.has(`${base}-${index}.webp`.toLowerCase())) index += 1;
-  const result = `${base}-${index}.webp`;
+  while (used.has(`${base}-${index}${extension}`.toLowerCase())) index += 1;
+  const result = `${base}-${index}${extension}`;
   used.add(result.toLowerCase());
   return result;
 }

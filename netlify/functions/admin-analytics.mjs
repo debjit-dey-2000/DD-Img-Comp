@@ -46,9 +46,19 @@ function rangeStart(period) {
   return value;
 }
 
-function aggregate(events, period) {
-  const cutoff = rangeStart(period);
-  const relevant = events.filter(event => new Date(event.createdAt) >= cutoff);
+function parseDate(value, endOfDay = false) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return null;
+  const date = new Date(`${value}T${endOfDay ? '23:59:59.999' : '00:00:00.000'}Z`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function aggregate(events, period, options = {}) {
+  const cutoff = options.from || (options.to ? new Date(0) : rangeStart(period));
+  const end = options.to || new Date('9999-12-31T23:59:59.999Z');
+  const relevant = events.filter(event => {
+    const createdAt = new Date(event.createdAt);
+    return createdAt >= cutoff && createdAt <= end;
+  });
   const buckets = new Map();
   const empty = () => ({ imageCount: 0, originalBytes: 0, compressedBytes: 0, savedBytes: 0, processingMs: 0, sessions: 0 });
 
@@ -73,12 +83,21 @@ function aggregate(events, period) {
     sessions: total.sessions + 1
   }), empty());
 
+  const ordered = [...relevant].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const totalItems = ordered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / options.pageSize));
+  const page = Math.min(options.page, totalPages);
+  const offset = (page - 1) * options.pageSize;
+
   return {
     summary,
     series: Array.from(buckets, ([label, values]) => ({ label, ...values })).sort((a, b) => a.label.localeCompare(b.label)),
-    recent: relevant.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 50)
+    recent: ordered.slice(offset, offset + options.pageSize),
+    pagination: { page, pageSize: options.pageSize, totalItems, totalPages }
   };
 }
+
+export { aggregate, parseDate };
 
 export default async (request) => {
   if (request.method !== 'GET') return json({ error: 'Method not allowed' }, 405);
@@ -87,11 +106,24 @@ export default async (request) => {
     return json({ error: 'Invalid email or password' }, 401);
   }
 
-  const period = new URL(request.url).searchParams.get('period') || 'daily';
+  const params = new URL(request.url).searchParams;
+  const period = params.get('period') || 'daily';
   if (!['daily', 'weekly', 'monthly'].includes(period)) return json({ error: 'Invalid period' }, 400);
+  const page = Math.max(1, Number.parseInt(params.get('page') || '1', 10));
+  const pageSize = Math.min(100, Math.max(5, Number.parseInt(params.get('pageSize') || '10', 10)));
+  if (!Number.isInteger(page) || !Number.isInteger(pageSize)) return json({ error: 'Invalid pagination' }, 400);
+  const from = params.has('from') ? parseDate(params.get('from')) : null;
+  const to = params.has('to') ? parseDate(params.get('to'), true) : null;
+  if ((params.has('from') && !from) || (params.has('to') && !to) || (from && to && from > to)) return json({ error: 'Invalid date range' }, 400);
+  if (from && to && to - from > 10 * 366 * 86_400_000) return json({ error: 'Date range cannot exceed 10 years' }, 400);
 
   const store = getStore('dd-img-comp-analytics');
   const { blobs } = await store.list({ prefix: 'events/' });
   const events = (await Promise.all(blobs.map(blob => store.get(blob.key, { type: 'json' })))).filter(Boolean);
-  return json({ period, generatedAt: new Date().toISOString(), ...aggregate(events, period) });
+  return json({
+    period,
+    range: { from: from?.toISOString() || null, to: to?.toISOString() || null },
+    generatedAt: new Date().toISOString(),
+    ...aggregate(events, period, { from, to, page, pageSize })
+  });
 };

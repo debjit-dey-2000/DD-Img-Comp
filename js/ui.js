@@ -1,9 +1,9 @@
 const elements = Object.fromEntries([
-  'dropZone','fileInput','folderInput','browseButton','folderButton','qualitySlider','qualityOutput','compressAllButton',
+  'dropZone','fileInput','folderInput','browseButton','folderButton','qualitySlider','qualityOutput','compressAllButton','queueCompressAllButton',
   'queueSection','queueCount','selectionSummary','selectAllCheckbox','searchInput','filterSelect','sortSelect','batchBar','batchCount',
   'compressSelectedButton','downloadSelectedButton','deleteSelectedButton','progressPanel','progressTitle','progressCount','overallProgress',
   'pauseButton','cancelButton','imageGrid','emptyResults','loadMorePanel','loadMoreSummary','loadMoreButton','clearAllButton','downloadAllButton','gridViewButton','listViewButton',
-  'statUploaded','statConverted','statOriginal','statCompressed','statSaved','statAverage','statTime','statSpeed','toastRegion','previewDialog',
+  'statUploaded','statConverted','statOriginal','statCompressed','statSaved','statAverage','statTime','statSpeed','statOutputLabel','toastRegion','previewDialog',
   'dialogClose','confirmDialog','confirmTitle','confirmMessage','confirmCancel','confirmAccept','welcomeDialog','welcomeClose','welcomeContinue','aboutDeveloperButton','developerDialog','developerDialogClose','privacyPolicyButton','privacyDialog','privacyDialogClose','privacyAcknowledge','animationToggle','imageCardTemplate'
 ].map(id => [id, document.getElementById(id)]));
 
@@ -105,6 +105,7 @@ function makeCard(item, globalQuality, processing) {
   card.querySelector('.file-name').textContent = item.name;
   card.querySelector('.file-details').textContent = `${item.file.type.split('/')[1] || 'image'} · ${item.width || '?'} × ${item.height || '?'}`;
   card.querySelector('.original-size').textContent = formatBytes(item.file.size);
+  card.querySelector('.output-format-label').textContent = outputFormatLabel(state.preferences.outputFormat);
   const quality = item.qualityOverride ?? globalQuality;
   const estimatedSize = Math.max(256, Math.round(item.file.size * (.2 + quality / 100 * .62)));
   card.querySelector('.compressed-size').textContent = item.compressedBlob ? formatBytes(item.compressedBlob.size) : `~${formatBytes(estimatedSize)}`;
@@ -161,6 +162,7 @@ function render(state) {
   updateQueueSummary(state);
   refreshSelectionState(state);
   elements.compressAllButton.disabled = state.items.length === 0 || state.processing;
+  elements.queueCompressAllButton.disabled = state.items.length === 0 || state.processing;
   elements.downloadAllButton.disabled = !state.items.some(item => item.compressedBlob);
   elements.compressSelectedButton.disabled = state.processing;
   elements.deleteSelectedButton.disabled = state.processing;
@@ -170,6 +172,7 @@ function render(state) {
   elements.listViewButton.classList.toggle('active', state.preferences.layout === 'list');
   elements.gridViewButton.setAttribute('aria-pressed', state.preferences.layout === 'grid');
   elements.listViewButton.setAttribute('aria-pressed', state.preferences.layout === 'list');
+  elements.statOutputLabel.textContent = `${outputFormatLabel(state.preferences.outputFormat)} output`;
   renderStats(state.items);
 }
 

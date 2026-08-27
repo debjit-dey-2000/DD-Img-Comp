@@ -1,10 +1,15 @@
 const KEY = 'dd-img-comp-preferences-v1';
-const defaults = { quality: 80, layout: 'grid', animations: true };
+const defaults = {
+  quality: 80, layout: 'grid', animations: true, outputFormat: 'image/webp',
+  transform: { mode: 'none', width: null, height: null }
+};
 
 function loadPreferences() {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY));
-    return { ...defaults, ...(saved && typeof saved === 'object' ? saved : {}) };
+    const preferences = { ...defaults, ...(saved && typeof saved === 'object' ? saved : {}) };
+    preferences.transform = { ...defaults.transform, ...(preferences.transform || {}) };
+    return preferences;
   } catch { return { ...defaults }; }
 }
 
