@@ -3,6 +3,9 @@
   /* background-color: #17243a; */
   color: #f8fafc;
 }
+.quick-settings-grid select:focus{
+  outline: none;
+}
 
 .quick-settings-grid select option {
   background: #111c2f;
