@@ -1,0 +1,58 @@
+.quick-settings-grid select {
+  color-scheme: dark;
+  background-color: #17243a;
+  color: #f8fafc;
+}
+
+.quick-settings-grid select option {
+  background: #111c2f;
+  color: #f8fafc;
+}
+
+.quick-settings-grid select option:checked {
+  background: #2563eb;
+  color: #fff;
+}
+
+.faq-section details {
+  overflow: hidden;
+}
+
+.faq-section summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  list-style: none;
+  color: var(--text);
+  user-select: none;
+}
+
+.faq-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-section summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-right: 2px solid var(--blue-2);
+  border-bottom: 2px solid var(--blue-2);
+  transform: rotate(45deg);
+  transition: transform 260ms cubic-bezier(.2,.75,.25,1);
+}
+
+.faq-section details[open]:not(.is-closing) summary::after {
+  transform: rotate(225deg);
+}
+
+.faq-section details p {
+  margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-section summary::after {
+    transition: none;
+  }
+}

@@ -156,3 +156,43 @@ document.addEventListener('keydown', event => {
   if (event.key !== '?' || ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) || document.querySelector('dialog[open]')) return;
   event.preventDefault(); openLockedDialog(enhancementElements.helpDialog, enhancementElements.helpDialogClose);
 });
+
+document.querySelectorAll('.faq-section details').forEach(details => {
+  const summary = details.querySelector('summary');
+  let animation = null;
+
+  function finish(open) {
+    details.open = open;
+    details.classList.remove('is-closing');
+    details.style.height = '';
+    details.style.overflow = '';
+    animation = null;
+  }
+
+  summary.addEventListener('click', event => {
+    event.preventDefault();
+    if (animation) animation.cancel();
+
+    const startHeight = details.offsetHeight;
+    const opening = !details.open;
+    if (opening) details.open = true;
+    details.classList.toggle('is-closing', !opening);
+
+    const styles = getComputedStyle(details);
+    const closedHeight = summary.offsetHeight + parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+    const endHeight = opening ? details.scrollHeight : closedHeight;
+    details.style.overflow = 'hidden';
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finish(opening);
+      return;
+    }
+
+    animation = details.animate(
+      { height: [`${startHeight}px`, `${endHeight}px`] },
+      { duration: 280, easing: 'cubic-bezier(.2,.75,.25,1)' }
+    );
+    animation.onfinish = () => finish(opening);
+    animation.oncancel = () => { animation = null; };
+  });
+});

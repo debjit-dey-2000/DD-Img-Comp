@@ -14,6 +14,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" defer></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/enhancements.css">
+  <link rel="stylesheet" href="css/faq-fixes.css">
   <style>.status-badge.skipped{background:rgba(245,158,11,.9);color:#fff}</style>
 </head>
 <body class="welcome-pending">
@@ -163,7 +164,7 @@
 
     <section class="faq-section glass-card" aria-labelledby="faqTitle">
       <div class="content-heading"><span class="eyebrow">GOOD TO KNOW</span><h2 id="faqTitle">Frequently asked questions</h2></div>
-      <details><summary>Are my images uploaded?</summary><p>No. Original images and compressed files are processed locally. Only anonymous aggregate totals are sent when analytics consent is enabled.</p></details>
+      <details open><summary>Are my images uploaded?</summary><p>No. Original images and compressed files are processed locally. Only anonymous aggregate totals are sent when analytics consent is enabled.</p></details>
       <details><summary>Why can a WEBP occasionally be larger?</summary><p>Already-optimized images may not shrink further. Enable “Skip larger results” to exclude those outputs automatically.</p></details>
       <details><summary>Does conversion remove private metadata?</summary><p>Yes. Canvas re-encoding creates a new image without EXIF, GPS, camera, or other original metadata.</p></details>
       <details><summary>Which browsers work best?</summary><p>Current Chrome, Edge, Firefox, and Safari releases provide the best Canvas, WEBP, AVIF, clipboard, and folder support.</p></details>
