@@ -83,6 +83,7 @@ async function waitWhilePaused() {
 }
 
 async function recordCompressionAnalytics(processedItems) {
+  if (localStorage.getItem('dd-analytics-consent') !== 'accepted') return;
   const completedItems = processedItems.filter(item => item.status === 'completed' && item.compressedBlob);
   if (!completedItems.length) return;
   const payload = completedItems.reduce((totals, item) => ({
@@ -158,11 +159,19 @@ async function processItems(items) {
           const bar = elements.imageGrid.querySelector(`[data-id="${item.id}"] .item-progress span`);
           if (bar) bar.style.width = `${progress}%`;
         });
-        if (item.compressedUrl) URL.revokeObjectURL(item.compressedUrl);
-        item.compressedBlob = result.blob;
-        item.compressedUrl = URL.createObjectURL(result.blob);
-        item.width = result.width; item.height = result.height; item.processingTime = result.time;
-        item.status = 'completed'; item.progress = 100;
+        if (state.preferences.skipLarger && result.blob.size >= item.file.size) {
+          if (item.compressedUrl) URL.revokeObjectURL(item.compressedUrl);
+          item.compressedBlob = null; item.compressedUrl = '';
+          item.status = 'skipped'; item.progress = 100;
+          item.error = 'Skipped because the WEBP result was not smaller than the original.';
+          item.processingTime = result.time;
+        } else {
+          if (item.compressedUrl) URL.revokeObjectURL(item.compressedUrl);
+          item.compressedBlob = result.blob;
+          item.compressedUrl = URL.createObjectURL(result.blob);
+          item.width = result.width; item.height = result.height; item.processingTime = result.time;
+          item.status = 'completed'; item.progress = 100;
+        }
         progressById.set(item.id, 100);
       } catch (error) {
         item.status = 'failed'; item.progress = 0; item.error = error.message;

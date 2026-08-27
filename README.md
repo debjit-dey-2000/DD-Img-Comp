@@ -6,25 +6,32 @@ DD Img Comp is a free, privacy-focused image compression website that converts P
 
 The website is designed for developers, designers, content creators, and anyone who needs smaller, web-ready images without sacrificing visual quality. Users can upload individual files or entire folders, adjust compression quality globally or per image, compare the original and compressed results, and download converted files individually or together in a ZIP archive.
 
-DD Img Comp combines a responsive dark/light interface with fast, hardware-aware batch processing. It supports up to 200 images per session and provides live information about file sizes, saved space, processing time, compression percentage, and compression speed.
+DD Img Comp combines a responsive dark interface with fast, hardware-aware batch processing. It supports up to 200 images per session and provides live information about file sizes, saved space, processing time, compression percentage, and compression speed.
 
 ## Features
 
 - Drag-and-drop, file, folder, and clipboard input (up to 200 images)
 - Global quality plus per-image overrides
+- Small-file, balanced, and high-quality compression presets
+- Optional protection that skips WEBP results larger than the original
 - Asynchronous batch processing with pause, resume, cancel, and progress
 - Before/after comparison previews with mouse, touch, and keyboard controls
 - Individual WEBP downloads and ZIP batch downloads
-- Search, sorting, status filters, selection, rename, and batch actions
+- Search, sorting, status filters, selection, individual and bulk rename, and batch actions
+- Retry failed images, downloadable issue reports, and seven-second undo after deletion
+- Optional automatic downloads and browser completion notifications
 - Incremental image grid with four-card "Load more" pagination
 - Live size, savings, conversion, and timing statistics
 - Live compression throughput displayed in MB/s
 - Hardware-aware parallel processing for faster large batches
 - Persistent quality, layout, and animation preferences
 - Responsive dark interface with reduced-motion support
-- Welcome, confirmation, full-preview, and developer profile dialogs
+- Browser compatibility report, keyboard shortcut guide, FAQ, and changelog
+- Welcome, confirmation, full-preview, privacy, and developer profile dialogs
 - Protected analytics dashboard with daily, weekly, and monthly usage summaries
-- Anonymous aggregate usage storage through Netlify Functions and Netlify Blobs
+- Consent-based anonymous aggregate usage storage through Netlify Functions and Netlify Blobs
+- Admin CSV export and optional 60-second automatic refresh
+- Netlify security headers for framing, content types, referrers, permissions, and content sources
 
 ## Admin analytics
 
@@ -35,8 +42,10 @@ Open `/admin.html` on the deployed website and sign in with the configured admin
 - Processing time and average throughput
 - Daily, weekly, or monthly activity charts
 - The 50 most recent anonymous compression sessions
+- CSV export of the displayed recent sessions
+- Optional automatic refresh while the dashboard tab is visible
 
-The analytics endpoint stores only image count, byte totals, processing duration, savings, and a server timestamp. It never receives image data, previews, filenames, email addresses, IP addresses from application code, or persistent device identifiers.
+Analytics is opt-in. The endpoint stores only image count, byte totals, processing duration, savings, and a server timestamp after the visitor allows it. It never receives image data, previews, filenames, email addresses, IP addresses from application code, or persistent device identifiers.
 
 Authentication is verified inside a Netlify Function with `scrypt` and constant-time hash comparison. The password is not included in frontend JavaScript. The project contains a hash for the initial administrator credential. For production, rotate it using Netlify environment variables with **Functions** scope:
 
@@ -63,7 +72,7 @@ After deployment, verify these URLs:
 
 ## Privacy and browser support
 
-All image processing uses the browser's Canvas API. Files remain on the user's device. After a compression batch, anonymous aggregate metrics are sent to a Netlify Function and stored in Netlify Blobs for the admin dashboard. JSZip and FileSaver.js are loaded from cdnjs, and Tailwind's CDN script is included as requested; the interface's custom styling lives in `css/style.css`.
+All image processing uses the browser's Canvas API. Files remain on the user's device. When a visitor opts in, anonymous aggregate metrics are sent after a compression batch to a Netlify Function and stored in Netlify Blobs for the admin dashboard. JSZip and FileSaver.js are loaded from cdnjs, and the interface's custom styling lives in `css/style.css` and `css/enhancements.css`.
 
 Use a current release of Chrome, Edge, Firefox, or Safari. AVIF input depends on the browser's AVIF decoding support. Extremely large image dimensions may exceed browser Canvas limits even when file size is below the 100 MB safety limit.
 

@@ -13,6 +13,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" defer></script>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/enhancements.css">
+  <style>.status-badge.skipped{background:rgba(245,158,11,.9);color:#fff}</style>
 </head>
 <body class="welcome-pending">
   <a class="skip-link" href="#workspace">Skip to converter</a>
@@ -25,6 +27,7 @@
       <span><strong>DD Img Comp</strong><small>Private image optimization</small></span>
     </a>
     <div class="header-actions">
+      <button id="toolHelpButton" class="developer-button compact-header-button" type="button" aria-haspopup="dialog" aria-controls="helpDialog"><span>Help &amp; shortcuts</span></button>
       <button id="aboutDeveloperButton" class="developer-button" type="button" aria-haspopup="dialog" aria-controls="developerDialog">
         <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
         <span>About Developer</span>
@@ -77,6 +80,17 @@
       </div>
     </section>
 
+    <section class="quick-settings glass-card" aria-labelledby="quickSettingsTitle">
+      <div class="quick-settings-heading"><div><span class="mini-icon" aria-hidden="true">⚙</span><h2 id="quickSettingsTitle">Quick settings</h2></div><button id="compatibilityButton" type="button">Check browser</button></div>
+      <div class="quick-settings-grid">
+        <label>Compression preset<select id="compressionPreset"><option value="custom">Custom</option><option value="small">Small file · 55%</option><option value="balanced" selected>Balanced · 80%</option><option value="quality">High quality · 92%</option></select></label>
+        <label class="toggle-setting"><input id="skipLargerToggle" type="checkbox" checked><span><strong>Skip larger results</strong><small>Keep only useful compression</small></span></label>
+        <label class="toggle-setting"><input id="autoDownloadToggle" type="checkbox"><span><strong>Auto-download</strong><small>Download when batch completes</small></span></label>
+        <label class="toggle-setting"><input id="notificationToggle" type="checkbox"><span><strong>Completion notification</strong><small>Notify when processing finishes</small></span></label>
+      </div>
+      <p class="metadata-note"><span>✓</span> Canvas conversion automatically removes EXIF, GPS, camera, and other embedded metadata from generated WEBP files.</p>
+    </section>
+
     <section id="statsSection" class="stats-grid" aria-label="Compression statistics">
       <article class="stat-card glass-card"><span>Images uploaded</span><strong id="statUploaded">0</strong><small id="statConverted">0 converted</small></article>
       <article class="stat-card glass-card"><span>Original size</span><strong id="statOriginal">0 B</strong><small>Total uploaded</small></article>
@@ -102,7 +116,7 @@
           <input id="searchInput" type="search" placeholder="Search filenames…" aria-label="Search images by filename">
         </label>
         <select id="filterSelect" aria-label="Filter by status">
-          <option value="all">All statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="completed">Completed</option><option value="failed">Failed</option>
+          <option value="all">All statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="completed">Completed</option><option value="skipped">Skipped</option><option value="failed">Failed</option>
         </select>
         <select id="sortSelect" aria-label="Sort images">
           <option value="upload">Upload time</option><option value="name">Name</option><option value="size-desc">Largest</option><option value="size-asc">Smallest</option>
@@ -113,6 +127,7 @@
         <strong id="batchCount">0 selected</strong>
         <div>
           <button id="compressSelectedButton" class="button secondary small" type="button">Compress selected</button>
+          <button id="bulkRenameButton" class="button secondary small" type="button">Bulk rename</button>
           <button id="downloadSelectedButton" class="button secondary small" type="button">Download selected</button>
           <button id="deleteSelectedButton" class="button danger small" type="button">Delete selected</button>
         </div>
@@ -129,7 +144,7 @@
 
       <div class="footer-actions glass-card">
         <button id="clearAllButton" class="button danger secondary" type="button">Clear all</button>
-        <button id="downloadAllButton" class="button primary" type="button" disabled>Download all as ZIP</button>
+        <div class="footer-action-group"><button id="retryFailedButton" class="button secondary" type="button" disabled>Retry failed</button><button id="errorReportButton" class="button secondary" type="button" disabled>Error report</button><button id="downloadAllButton" class="button primary" type="button" disabled>Download all as ZIP</button></div>
       </div>
 
       <div id="imageGrid" class="image-grid" aria-live="polite"></div>
@@ -139,6 +154,22 @@
         <button id="loadMoreButton" class="button secondary" type="button" aria-controls="imageGrid">Load 4 more</button>
       </div>
     </section>
+
+    <section class="info-sections" aria-label="How DD Img Comp works">
+      <article class="info-card glass-card"><span>01</span><h2>Upload privately</h2><p>Add files, folders, or pasted images. Image contents stay inside your browser.</p></article>
+      <article class="info-card glass-card"><span>02</span><h2>Compress intelligently</h2><p>Choose a preset or fine-tune quality while hardware-aware processing handles the queue.</p></article>
+      <article class="info-card glass-card"><span>03</span><h2>Compare &amp; download</h2><p>Review before/after results and download individual WEBPs or one ZIP archive.</p></article>
+    </section>
+
+    <section class="faq-section glass-card" aria-labelledby="faqTitle">
+      <div class="content-heading"><span class="eyebrow">GOOD TO KNOW</span><h2 id="faqTitle">Frequently asked questions</h2></div>
+      <details><summary>Are my images uploaded?</summary><p>No. Original images and compressed files are processed locally. Only anonymous aggregate totals are sent when analytics consent is enabled.</p></details>
+      <details><summary>Why can a WEBP occasionally be larger?</summary><p>Already-optimized images may not shrink further. Enable “Skip larger results” to exclude those outputs automatically.</p></details>
+      <details><summary>Does conversion remove private metadata?</summary><p>Yes. Canvas re-encoding creates a new image without EXIF, GPS, camera, or other original metadata.</p></details>
+      <details><summary>Which browsers work best?</summary><p>Current Chrome, Edge, Firefox, and Safari releases provide the best Canvas, WEBP, AVIF, clipboard, and folder support.</p></details>
+    </section>
+
+    <section class="changelog glass-card"><span class="eyebrow">LATEST UPDATE</span><h2>What’s new in v1.2</h2><p>Compression presets, skip-larger protection, bulk rename, retry tools, error reports, notifications, analytics consent, keyboard help, admin exports, and security improvements.</p></section>
   </main>
 
   <footer>
@@ -152,6 +183,8 @@
   </footer>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <div id="undoBar" class="undo-bar glass-card" hidden><span id="undoMessage">Image removed</span><button id="undoDeleteButton" type="button">Undo</button></div>
+  <aside id="analyticsConsent" class="consent-banner glass-card" hidden aria-labelledby="consentTitle"><div><strong id="consentTitle">Help improve DD Img Comp</strong><p>Allow anonymous compression totals and timing data. Images, filenames, and device identifiers are never collected.</p></div><div><button id="declineAnalytics" class="button secondary small" type="button">No thanks</button><button id="acceptAnalytics" class="button primary small" type="button">Allow analytics</button></div></aside>
 
   <dialog id="welcomeDialog" class="welcome-dialog" aria-labelledby="welcomeTitle" aria-describedby="welcomeMessage">
     <button id="welcomeClose" class="icon-button welcome-close" type="button" aria-label="Close welcome message">×</button>
@@ -195,6 +228,16 @@
       <button id="confirmAccept" class="button danger" type="button">Confirm</button>
     </div>
   </dialog>
+
+  <dialog id="helpDialog" class="utility-dialog" aria-labelledby="helpTitle">
+    <div class="utility-dialog-header"><div><span class="eyebrow">PRODUCTIVITY</span><h2 id="helpTitle">Help &amp; keyboard shortcuts</h2></div><button id="helpDialogClose" class="icon-button" type="button" aria-label="Close help">×</button></div>
+    <div class="shortcut-list"><div><span><kbd>Ctrl</kbd> + <kbd>V</kbd></span><strong>Paste an image</strong></div><div><span><kbd>Ctrl</kbd> + <kbd>A</kbd></span><strong>Select all images</strong></div><div><span><kbd>Delete</kbd></span><strong>Delete selected images</strong></div><div><span><kbd>Enter</kbd></span><strong>Open focused uploader</strong></div><div><span><kbd>←</kbd> <kbd>→</kbd></span><strong>Move comparison divider</strong></div><div><span><kbd>?</kbd></span><strong>Open shortcut help</strong></div></div>
+    <button id="helpAcknowledge" class="button primary utility-action" type="button">Got it</button>
+  </dialog>
+
+  <dialog id="compatibilityDialog" class="utility-dialog" aria-labelledby="compatibilityTitle"><div class="utility-dialog-header"><div><span class="eyebrow">SYSTEM CHECK</span><h2 id="compatibilityTitle">Browser compatibility</h2></div><button id="compatibilityClose" class="icon-button" type="button" aria-label="Close compatibility report">×</button></div><div id="compatibilityResults" class="compatibility-results"></div><button id="compatibilityAcknowledge" class="button primary utility-action" type="button">Done</button></dialog>
+
+  <dialog id="bulkRenameDialog" class="utility-dialog" aria-labelledby="bulkRenameTitle"><div class="utility-dialog-header"><div><span class="eyebrow">BATCH TOOL</span><h2 id="bulkRenameTitle">Bulk rename selected images</h2></div><button id="bulkRenameClose" class="icon-button" type="button" aria-label="Close bulk rename">×</button></div><label class="dialog-field">Filename prefix<input id="bulkRenamePrefix" type="text" value="image" maxlength="60" placeholder="image"></label><p class="dialog-hint">Selected files will be named image-01.webp, image-02.webp, and so on.</p><button id="bulkRenameApply" class="button primary utility-action" type="button">Rename selected</button></dialog>
 
   <dialog id="developerDialog" class="developer-dialog" aria-labelledby="developerName" aria-describedby="developerBio">
     <button id="developerDialogClose" class="icon-button developer-close" type="button" aria-label="Close developer profile">×</button>
@@ -241,7 +284,7 @@
       </section>
       <section>
         <h3>5. Cookies, analytics, and data sales</h3>
-        <p>DD Img Comp stores anonymous aggregate compression statistics, including the number of images processed, total original and compressed byte sizes, processing duration, and server timestamp. This data helps the developer understand daily, weekly, and monthly tool usage. Filenames, image contents, previews, account identifiers, and device identifiers are not included. We do not use advertising cookies, behavioral tracking, or tracking pixels, and we do not sell, rent, or trade personal information.</p>
+        <p>With your consent, DD Img Comp stores anonymous aggregate compression statistics, including the number of images processed, total original and compressed byte sizes, processing duration, and server timestamp. You may decline or change this choice by clearing this site's browser data. Filenames, image contents, previews, account identifiers, and device identifiers are not included. We do not use advertising cookies, behavioral tracking, or tracking pixels, and we do not sell, rent, or trade personal information.</p>
       </section>
       <section>
         <h3>6. External links</h3>
@@ -297,5 +340,6 @@
   <script src="js/zip.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/enhancements.js"></script>
 </body>
 </html>

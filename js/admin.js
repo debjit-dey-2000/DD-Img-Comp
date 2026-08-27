@@ -2,10 +2,10 @@ const elements = Object.fromEntries([
   'loginView','loginForm','adminEmail','adminPassword','loginError','loginButton','dashboardView','lastUpdated',
   'refreshButton','logoutButton','dashboardError','metricImages','metricSessions','metricOriginal','metricCompressed',
   'metricSaved','metricSavingRate','metricTime','metricSpeed','chartTotal','activityChart','chartEmpty',
-  'activityRows','activityEmpty','loadingOverlay'
+  'activityRows','activityEmpty','loadingOverlay','autoRefreshToggle','exportCsvButton'
 ].map(id => [id, document.getElementById(id)]));
 
-const state = { authorization: '', period: 'daily' };
+const state = { authorization: '', period: 'daily', latestData: null, autoRefreshTimer: 0 };
 
 function greetingForHour(hour) {
   if (hour >= 5 && hour < 12) return 'Good morning';
@@ -36,6 +36,7 @@ function labelForBucket(label) {
 }
 
 function renderDashboard(data) {
+  state.latestData = data;
   const summary = data.summary;
   elements.metricImages.textContent = summary.imageCount.toLocaleString();
   elements.metricSessions.textContent = `${summary.sessions.toLocaleString()} session${summary.sessions === 1 ? '' : 's'}`;
@@ -98,6 +99,9 @@ async function loadAnalytics() {
 }
 
 function logout() {
+  clearInterval(state.autoRefreshTimer);
+  state.autoRefreshTimer = 0;
+  elements.autoRefreshToggle.checked = false;
   state.authorization = '';
   elements.adminPassword.value = '';
   elements.dashboardView.hidden = true;
@@ -131,3 +135,21 @@ document.querySelectorAll('[data-period]').forEach(button => button.addEventList
 }));
 elements.refreshButton.addEventListener('click', loadAnalytics);
 elements.logoutButton.addEventListener('click', logout);
+
+elements.autoRefreshToggle.addEventListener('change', event => {
+  clearInterval(state.autoRefreshTimer);
+  state.autoRefreshTimer = event.target.checked ? setInterval(() => {
+    if (!document.hidden && state.authorization) loadAnalytics();
+  }, 60_000) : 0;
+});
+
+elements.exportCsvButton.addEventListener('click', () => {
+  if (!state.latestData) return;
+  const escapeCsv = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  const rows = [['Date and time', 'Images', 'Original bytes', 'WEBP bytes', 'Saved bytes', 'Processing ms']];
+  state.latestData.recent.forEach(item => rows.push([item.createdAt, item.imageCount, item.originalBytes, item.compressedBytes, item.savedBytes, item.processingMs]));
+  const blob = new Blob([rows.map(row => row.map(escapeCsv).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob); const link = document.createElement('a');
+  link.href = url; link.download = `dd-img-comp-${state.period}-${new Date().toISOString().slice(0, 10)}.csv`; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
