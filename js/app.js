@@ -301,7 +301,6 @@ elements.clearAllButton.addEventListener('click', async () => {
 function setLayout(layout) { state.preferences.layout = layout; persist(); render(state); }
 elements.gridViewButton.addEventListener('click', () => setLayout('grid'));
 elements.listViewButton.addEventListener('click', () => setLayout('list'));
-elements.themeToggle.addEventListener('click', () => { state.preferences.theme = state.preferences.theme === 'dark' ? 'light' : 'dark'; persist(); applyPreferences(state.preferences); });
 elements.animationToggle.addEventListener('click', () => { state.preferences.animations = !state.preferences.animations; persist(); applyPreferences(state.preferences); toast('Animations updated', state.preferences.animations ? 'Motion effects are enabled.' : 'Motion effects are disabled.'); });
 elements.dialogClose.addEventListener('click', () => elements.previewDialog.close());
 elements.aboutDeveloperButton.addEventListener('click', () => {

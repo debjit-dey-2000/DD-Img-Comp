@@ -20,8 +20,8 @@ DD Img Comp combines a responsive dark/light interface with fast, hardware-aware
 - Live size, savings, conversion, and timing statistics
 - Live compression throughput displayed in MB/s
 - Hardware-aware parallel processing for faster large batches
-- Persistent theme, quality, layout, and animation preferences
-- Responsive dark/light interface with reduced-motion support
+- Persistent quality, layout, and animation preferences
+- Responsive dark interface with reduced-motion support
 - Welcome, confirmation, full-preview, and developer profile dialogs
 - Protected analytics dashboard with daily, weekly, and monthly usage summaries
 - Anonymous aggregate usage storage through Netlify Functions and Netlify Blobs

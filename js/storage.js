@@ -1,5 +1,5 @@
 const KEY = 'dd-img-comp-preferences-v1';
-const defaults = { quality: 80, theme: 'dark', layout: 'grid', animations: true };
+const defaults = { quality: 80, layout: 'grid', animations: true };
 
 function loadPreferences() {
   try {

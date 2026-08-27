@@ -4,7 +4,7 @@ const elements = Object.fromEntries([
   'compressSelectedButton','downloadSelectedButton','deleteSelectedButton','progressPanel','progressTitle','progressCount','overallProgress',
   'pauseButton','cancelButton','imageGrid','emptyResults','loadMorePanel','loadMoreSummary','loadMoreButton','clearAllButton','downloadAllButton','gridViewButton','listViewButton',
   'statUploaded','statConverted','statOriginal','statCompressed','statSaved','statAverage','statTime','statSpeed','toastRegion','previewDialog',
-  'dialogClose','confirmDialog','confirmTitle','confirmMessage','confirmCancel','confirmAccept','welcomeDialog','welcomeClose','welcomeContinue','aboutDeveloperButton','developerDialog','developerDialogClose','privacyPolicyButton','privacyDialog','privacyDialogClose','privacyAcknowledge','themeToggle','animationToggle','imageCardTemplate'
+  'dialogClose','confirmDialog','confirmTitle','confirmMessage','confirmCancel','confirmAccept','welcomeDialog','welcomeClose','welcomeContinue','aboutDeveloperButton','developerDialog','developerDialogClose','privacyPolicyButton','privacyDialog','privacyDialogClose','privacyAcknowledge','animationToggle','imageCardTemplate'
 ].map(id => [id, document.getElementById(id)]));
 
 function syncPopupScrollLock() {
@@ -227,7 +227,7 @@ function updateProgress(current, total, title, percent) {
 function hideProgress() { elements.progressPanel.hidden = true; }
 
 function applyPreferences(preferences) {
-  document.documentElement.dataset.theme = preferences.theme;
+  document.documentElement.dataset.theme = 'dark';
   document.body.classList.toggle('no-animations', !preferences.animations);
   elements.qualitySlider.value = preferences.quality;
   elements.qualityOutput.textContent = `${preferences.quality}%`;

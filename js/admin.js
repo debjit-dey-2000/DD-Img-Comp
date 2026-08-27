@@ -14,21 +14,7 @@ function greetingForHour(hour) {
   return 'Good night';
 }
 
-function applyAdminTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  localStorage.setItem('dd-admin-theme', theme);
-  document.querySelectorAll('[data-theme-toggle]').forEach(button => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    button.setAttribute('aria-label', `Switch to ${nextTheme} theme`);
-    button.title = `Switch to ${nextTheme} theme`;
-  });
-}
-
 document.getElementById('adminGreeting').textContent = `${greetingForHour(new Date().getHours())}, Debjit`;
-applyAdminTheme(document.documentElement.dataset.theme || 'dark');
-document.querySelectorAll('[data-theme-toggle]').forEach(button => button.addEventListener('click', () => {
-  applyAdminTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
-}));
 
 const formatBytes = bytes => {
   const mb = bytes / 1_000_000;
