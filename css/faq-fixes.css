@@ -10,8 +10,8 @@
 }
 
 .quick-settings-grid select option:checked {
-  background: #2563eb;
-  color: #fff;
+  background: #17243a linear-gradient(0deg, #17243a 0%, #17243a 100%);
+  color: #f8fafc;
 }
 
 .faq-section details {
